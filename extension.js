@@ -12,8 +12,24 @@ function activate(context) {
         if (lang == "php") {
             var selection = vscode.window.activeTextEditor.selection;
             var startLine = selection.start.line;
-            var selectedText = vscode.window.activeTextEditor.document.lineAt(startLine).text;
+            var editor = vscode.window.activeTextEditor;
 
+            // Read all lines that belong to the function signature
+            var selectedText = '';
+            var currentLine = startLine;
+
+            // Continue reading lines until we close the parentheses
+            while (currentLine < editor.document.lineCount) {
+                const lineText = editor.document.lineAt(currentLine).text;
+                selectedText += lineText.trim(); // Add the line text, removing extra spaces
+                currentLine++;
+
+                // Break the loop if the function signature is complete
+                if (selectedText.includes(')')) {
+                    break;
+                }
+            }
+            
             var textToInsert = '';
             if (/function\s+([\w_-]+)/.exec(selectedText) != null) {
                 textToInsert = method.comment(selectedText);
